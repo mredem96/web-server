@@ -1,0 +1,52 @@
+const express=require('express');
+const hbs=require('hbs')
+const fs=require('fs')
+
+
+var app=express();
+
+hbs.registerPartials(__dirname+'/views/partials')
+
+app.set('view engine','hbs')
+
+app.use(express.static(__dirname+'/public'));
+
+app.use((req,res,next)=>{
+    var now=new Date().toString();
+    var log=`${now}: ${req.method} ${req.url}`
+
+    console.log(log)
+    fs.appendFile('server.log',log+'\n',(err)=>{
+        if(err){
+            console.log('unable to connect the server')
+        }
+
+    })
+    next();
+})
+
+hbs.registerHelper('getFullYear',()=>{
+     return new Date().getFullYear();
+    
+})
+hbs.registerHelper('toUpperCase',(text)=>{
+    return text.toUpperCase();
+})
+
+app.get('/',(req,res)=>{
+    res.render('home.hbs',{
+        title:'marmaris.com',
+        pageTitle:'Home Page',
+        welcomeMessage:'Have good to see you my web site',
+        
+    })
+});
+console.log('app starting');
+app.get('/about',(req,res)=>{
+    res.render('about.hbs',{
+        pageTitle:'About Page',
+       
+    });
+    console.log('about page')
+})
+app.listen(8000);
